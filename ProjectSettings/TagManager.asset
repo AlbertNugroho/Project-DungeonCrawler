@@ -5,6 +5,11 @@ TagManager:
   serializedVersion: 2
   tags:
   - Grass
+  - Spawnpoint
+  - Rooms
+  - Grid
+  - Audio
+  - OneWayPlatform
   layers:
   - Default
   - TransparentFX
@@ -12,9 +17,9 @@ TagManager:
   - ground
   - Water
   - UI
-  - 
-  - 
-  - 
+  - Platforms
+  - Enemies
+  - Player
   - 
   - 
   - 
