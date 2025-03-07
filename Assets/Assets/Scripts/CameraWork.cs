@@ -16,7 +16,7 @@ public class CameraWork : MonoBehaviour
     }
 
     // Update is called once per frame
-    void LateUpdate()
+    void FixedUpdate()
     {
         Vector3 target = new Vector3(following.transform.position.x, following.transform.position.y + offsetcamera, -6);
         transform.position = Vector3.SmoothDamp(transform.position, target, ref velocity, smoothtime);

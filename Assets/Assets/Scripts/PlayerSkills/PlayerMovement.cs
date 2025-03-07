@@ -40,7 +40,8 @@ public class PlayerMovement : MonoBehaviour
     public Animator a;
     public Animator Scythe;
     public Transform ScytheTransform;
-    private TrailRenderer tr;
+    public GameObject ps;
+        
     public AudioManager am;
     public CapsuleCollider2D cc;
 
@@ -66,11 +67,12 @@ public class PlayerMovement : MonoBehaviour
     public float leftAttackRequiredHoldTime = 1f;
     public float scytheTargetScaleMultiplier = 1.5f;
     public Vector3 BaseScytheScale;
+    
 
     public bool isBusy;
     public bool isDashing;
-    private float moveInput;
-    private bool isFacingRight = true;
+    public float moveInput;
+    public bool isFacingRight = true;
 
     public bool iswalljumping;
     public float walljumpingdirection;
@@ -87,9 +89,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         a = GetComponent<Animator>();
-        tr = GetComponent<TrailRenderer>();
         cc = GetComponent<CapsuleCollider2D>();
-        tr.emitting = false;
         BaseScytheScale = ScytheTransform.localScale;
 
         AttackFactory attackFactory = new AttackFactory();
@@ -312,22 +312,47 @@ public class PlayerMovement : MonoBehaviour
     {
         am.playclip(am.jumpfx);
     }
-
     public void StartDash(Vector2 direction, float dashSpeed)
     {
         isDashing = true;
         isBusy = true;
         a.SetTrigger("Dashing");
+
         dashTimer = dashTime;
-        tr.emitting = true;
         rb.velocity = direction * dashSpeed;
+
+        // Flip player sprite if moving left
+        if (direction.x < 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+            isFacingRight = false;
+        }
+        else
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+            isFacingRight = true;
+        }
+
+        // Start the particle effect coroutine
+        StartCoroutine(DashEffectLoop(direction));
+    }
+
+    private IEnumerator DashEffectLoop(Vector2 direction)
+    {
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        while (isDashing) // Keep spawning effects while dashing
+        {
+            GameObject effect = Instantiate(ps, transform.position + new Vector3(0, -0.7f, 0), Quaternion.Euler(angle, 90, 0));
+            Destroy(effect, 0.3f); // Destroy after 0.5s
+
+            yield return new WaitForSeconds(0.03f); // Spawn every 0.1s
+        }
     }
 
     void StopDash()
     {
         isDashing = false;
         isBusy = false;
-        tr.emitting = false;
         cc.isTrigger = false;
         rb.velocity = Vector2.zero;
         ResetScytheScale();

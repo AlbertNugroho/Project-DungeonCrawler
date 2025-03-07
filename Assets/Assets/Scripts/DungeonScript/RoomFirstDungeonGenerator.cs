@@ -1,8 +1,9 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Unity.VisualScripting;
+using static UnityEditor.PlayerSettings;
 
 public class RoomFirstDungeonGenerator : MonoBehaviour
 {
@@ -19,8 +20,6 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
     protected Vector2Int startposition = Vector2Int.zero;
     [SerializeField]
     private TileMapVisualizer visualizer;
-    [SerializeField]
-    private GameObject player;
 
     // Menyimpan setiap ruangan menggunakan pusat ruangan sebagai key dan posisi lantainya sebagai value.
     public Dictionary<Vector2Int, HashSet<Vector2Int>> RoomsDictionary = new Dictionary<Vector2Int, HashSet<Vector2Int>>();
@@ -37,11 +36,12 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
     {
         // Membagi area dungeon menjadi ruangan menggunakan Binary Space Partitioning.
         var roomslist = BinarySpacePartitioning(new BoundsInt((Vector3Int)startposition, new Vector3Int(dungeonwidth, dungeonheight, 0)), minroomwidth, minroomheight);
-
+        HashSet<Vector2Int> floordeco = new HashSet<Vector2Int>();
         HashSet<Vector2Int> floor = new HashSet<Vector2Int>();
         HashSet<Vector2Int> walls = new HashSet<Vector2Int>();
         HashSet<Vector2Int> platforms = new HashSet<Vector2Int>();
         HashSet<Vector2Int> saws = new HashSet<Vector2Int>();
+        HashSet<Vector2Int> ladders = new HashSet<Vector2Int>();
         // Membuat ruangan sederhana dari list yang sudah dibagi.
         floor = CreateSimpleRooms(roomslist, platforms);
 
@@ -58,20 +58,21 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
                 roomcenter.Add((Vector2Int)Vector3Int.RoundToInt(room.center));
             }
         }
-        // Set posisi awal player di ruangan pertama.
-        player.transform.position = (Vector3Int)roomcenter.First();
 
-        HashSet<Vector2Int> ladders = new HashSet<Vector2Int>();
-        HashSet<Vector2Int> corridors = Connectrooms(roomcenter, ladders);
+        roomcenter.Add(new Vector2Int(-29, 56));
+        HashSet<Vector2Int> corridors = Connectrooms(roomcenter);
         floor.UnionWith(corridors);
 
         walls = CreateWallsAroundRooms(floor, dungeonwidth, dungeonheight);
+        walls.UnionWith(StartRoomGenerator.makeroomstart(floor, platforms));
         platforms.UnionWith(MakeRoomOpening.GeneratePlatforms(RoomsDictionary, floor, walls));
         saws = MakeRoomOpening.GenerateSaws(RoomsDictionary, floor, walls);
+        floordeco = FloorDecorator.DecorateFloor(RoomsDictionary, floor);
         visualizer.PaintFloortiles(floor);
         WallGenerator.CreateSaws(saws, visualizer);
         WallGenerator.CreatePlatforms(platforms, visualizer);
         WallGenerator.CreateWalls(walls, visualizer);
+        WallGenerator.CreateFloorDeco(floordeco, visualizer);
         LadderGenerator.CreateLadder(ladders, visualizer);
 
         // --- Menentukan ruangan spesial dengan Dijkstra ---
@@ -97,7 +98,7 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
         Debug.Log("Treasure Room: " + treasureRoom);
     }
 
-    private HashSet<Vector2Int> Connectrooms(List<Vector2Int> roomcenter, HashSet<Vector2Int> ladders)
+    private HashSet<Vector2Int> Connectrooms(List<Vector2Int> roomcenter)
     {
         HashSet<Vector2Int> corridors = new HashSet<Vector2Int>();
         var currentRoomCenter = roomcenter[Random.Range(0, roomcenter.Count)];
@@ -107,7 +108,7 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
         {
             Vector2Int closest = FindClosestPointTo(currentRoomCenter, roomcenter);
             roomcenter.Remove(closest);
-            HashSet<Vector2Int> newCorridor = CreateCorridor(currentRoomCenter, closest, ladders);
+            HashSet<Vector2Int> newCorridor = CreateCorridor(currentRoomCenter, closest);
             currentRoomCenter = closest;
             corridors.UnionWith(newCorridor);
         }
@@ -115,7 +116,7 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
         return corridors;
     }
 
-    private HashSet<Vector2Int> CreateCorridor(Vector2Int currentRoomCenter, Vector2Int destination, HashSet<Vector2Int> ladders)
+    private HashSet<Vector2Int> CreateCorridor(Vector2Int currentRoomCenter, Vector2Int destination)
     {
         HashSet<Vector2Int> corridor = new HashSet<Vector2Int>();
         var position = currentRoomCenter;
@@ -205,7 +206,6 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
 
             PlacePlatforms(room, Platforms);
 
-            // Save the room data using its center as the key
             SaveRoomData(new Vector2Int((int)room.center.x, (int)room.center.y), roomFloor);
         }
         return overallFloor;
@@ -215,34 +215,28 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
     {
         int minPlatformLength = 6;
         int maxPlatformLength = 10;
-        int sameYSpacing = 3; // Minimum vertical space if X positions are different
-        int minXWallSpacing = 2+offset; // Minimum horizontal space from walls
-        int minYWallSpacing = 2+offset; // Minimum vertical space from walls
-        int maxPlatforms = Mathf.Max(5, mainRoom.size.y / 6); // Limit the number of platforms
+        int sameYSpacing = 3; // Jarak minimal antar platform jika X berbeda
+        int minXWallSpacing = 2 + offset;
+        int minYWallSpacing = 2 + offset;
+        int maxPlatforms = Mathf.Max(5, mainRoom.size.y / 6);
 
         List<RectInt> placedPlatforms = new List<RectInt>();
 
-        for (int i = 0; i <= maxPlatforms; i++)
+        for (int i = 0; i < maxPlatforms; i++) // Pakai `<` bukan `<=`
         {
             int platformWidth = Random.Range(minPlatformLength, maxPlatformLength);
             int startX = Random.Range(mainRoom.xMin + minXWallSpacing, mainRoom.xMax - platformWidth - minXWallSpacing);
-            int startY = Random.Range(mainRoom.yMin + minYWallSpacing + 1, mainRoom.yMax - minYWallSpacing - 1); // Ensures platforms are not too close to walls
+            int startY = Random.Range(mainRoom.yMin + minYWallSpacing + 1, mainRoom.yMax - minYWallSpacing - 1);
 
             RectInt newPlatform = new RectInt(startX, startY, platformWidth, 1);
 
-            // Allow multiple platforms on the same Y level if they don't overlap horizontally
-            bool overlapsHorizontally = placedPlatforms.Any(p => p.y == newPlatform.y &&
-                                                                  p.xMax >= newPlatform.xMin &&
-                                                                  p.xMin <= newPlatform.xMax);
+            bool overlaps = placedPlatforms.Any(p =>
+                (p.y == newPlatform.y && p.xMax >= newPlatform.xMin && p.xMin <= newPlatform.xMax) || // Overlap horizontal
+                (p.y != newPlatform.y && Mathf.Abs(p.y - newPlatform.y) < sameYSpacing)); // Overlap vertikal
 
-            // Ensure vertical spacing if X positions are different
-            bool overlapsVertically = placedPlatforms.Any(p => p.y != newPlatform.y &&
-                                                                Mathf.Abs(p.y - newPlatform.y) < sameYSpacing);
-
-            if (!overlapsHorizontally && !overlapsVertically)
+            if (!overlaps)
             {
                 placedPlatforms.Add(newPlatform);
-
                 for (int x = 0; x < platformWidth; x++)
                 {
                     platform.Add(new Vector2Int(startX + x, startY));
@@ -250,8 +244,6 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
             }
         }
     }
-
-
 
 
     private void SaveRoomData(Vector2Int center, HashSet<Vector2Int> floor)
@@ -425,24 +417,24 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
         return new Color(Random.value, Random.value, Random.value, 0.5f);
     }
 
-    void OnDrawGizmos()
-    {
-        if (RoomsDictionary == null || RoomsDictionary.Count == 0)
-            return;
+    //void OnDrawGizmos()
+    //{
+    //    if (RoomsDictionary == null || RoomsDictionary.Count == 0)
+    //        return;
 
-        foreach (var room in RoomsDictionary)
-        {
-            int minX = room.Value.Min(tile => tile.x);
-            int maxX = room.Value.Max(tile => tile.x);
-            int minY = room.Value.Min(tile => tile.y);
-            int maxY = room.Value.Max(tile => tile.y);
+    //    foreach (var room in RoomsDictionary)
+    //    {
+    //        int minX = room.Value.Min(tile => tile.x);
+    //        int maxX = room.Value.Max(tile => tile.x);
+    //        int minY = room.Value.Min(tile => tile.y);
+    //        int maxY = room.Value.Max(tile => tile.y);
 
-            Vector3 center = new Vector3((minX + maxX) / 2f + 0.5f, (minY + maxY) / 2f + 0.5f, 0);
-            Vector3 size = new Vector3((maxX - minX) + 1, (maxY - minY) + 1, 1);
+    //        Vector3 center = new Vector3((minX + maxX) / 2f + 0.5f, (minY + maxY) / 2f + 0.5f, 0);
+    //        Vector3 size = new Vector3((maxX - minX) + 1, (maxY - minY) + 1, 1);
 
-            Gizmos.color = GetRoomColor(room.Key.x); // Generate deterministic color
-            Gizmos.DrawCube(center, size);
-        }
-    }
+    //        Gizmos.color = GetRoomColor(room.Key.x); // Generate deterministic color
+    //        Gizmos.DrawCube(center, size);
+    //    }
+    //}
 
 }

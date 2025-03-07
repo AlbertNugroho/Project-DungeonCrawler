@@ -10,7 +10,17 @@ public class WallGenerator
     {
         foreach (var wall in wallpos)
         {
+            
             tmv.PaintSingleBasicWall(wall);
+        }
+    }
+
+    public static void CreateFloorDeco(HashSet<Vector2Int> floordecopos, TileMapVisualizer tmv)
+    {
+        foreach (var pos in floordecopos)
+        {
+
+            tmv.PaintSingleFloorDeco(pos);
         }
     }
 
