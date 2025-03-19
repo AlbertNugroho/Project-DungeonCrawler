@@ -23,6 +23,8 @@ public class OmniDirectionalSlash : IAttackSkill
 
     IEnumerator PlayAnimation(PlayerMovement player, Vector2 direction)
     {
+        CompositeCollider2D platformCollider = GameObject.FindGameObjectWithTag("OneWayPlatform").GetComponent<CompositeCollider2D>();
+        Physics2D.IgnoreCollision(player.cc, platformCollider, true);
         player.am.playclip(player.am.dashfx);
         player.isBusy = true;
         player.Scythe.Play("Base Layer.Start", 0, 0f);
@@ -30,22 +32,25 @@ public class OmniDirectionalSlash : IAttackSkill
         yield return new WaitForSeconds(player.dashTime);
         player.rb.bodyType = RigidbodyType2D.Static;
         player.Scythe.Play("Base Layer.Scythe_idle", 0  , 0f);
+        EnableCircleHitbox.startAttack();
         player.a.Play("Base Layer.Omnislash", 0, 0f);
-        PlaySound(player);
+        player.StartCoroutine(PlaySound(player));
         yield return new WaitForSeconds(0.1f);
-        PlaySound(player);
+        player.StartCoroutine(PlaySound(player));
         yield return new WaitForSeconds(0.1f);
-        PlaySound(player);
+        player.StartCoroutine(PlaySound(player));
         yield return new WaitForSeconds(0.1f);
-        PlaySound(player);
+        player.StartCoroutine(PlaySound(player));
         yield return new WaitForSeconds(0.1f);
-        PlaySound(player);
+        player.StartCoroutine(PlaySound(player));
         yield return new WaitForSeconds(0.55f);
         player.rb.bodyType = RigidbodyType2D.Dynamic;
         player.am.playclip(player.am.dashfx);
+        EnableCircleHitbox.endAttack();
         player.StartDash(direction, 30);
         player.Scythe.Play("Base Layer.Attack1", 0, 0f);
         CombatManager.instance.canreciveinput = true;
+        Physics2D.IgnoreCollision(player.cc, platformCollider, false);
     }
 
     IEnumerator PlaySound(PlayerMovement player)
