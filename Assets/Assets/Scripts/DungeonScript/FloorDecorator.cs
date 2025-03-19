@@ -44,6 +44,7 @@ public class FloorDecorator : MonoBehaviour
         return floordecoration;
     }
 
+
     public static HashSet<Vector2Int> RandomDecorPlacement(List<Vector2Int> checklist, HashSet<Vector2Int> existingDecorations)
     {
         int sewerMax = 3;
@@ -81,4 +82,14 @@ public class FloorDecorator : MonoBehaviour
         return final;
     }
 
+    public static HashSet<Vector2Int> CreateLights(HashSet<Vector2Int> sewerop)
+    {
+        HashSet<Vector2Int> light = new HashSet<Vector2Int>();
+
+        foreach(var tile in sewerop)
+        {
+            light.Add(new Vector2Int(tile.x, tile.y + 2));
+        }
+        return light;
+    }
 }

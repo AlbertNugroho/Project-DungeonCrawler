@@ -20,12 +20,22 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
     protected Vector2Int startposition = Vector2Int.zero;
     [SerializeField]
     private TileMapVisualizer visualizer;
+    [SerializeField]
+    private List<GameObject> Groundenemies = new List<GameObject>();
+    [SerializeField]
+    private List<GameObject> Flyingenemies = new List<GameObject>();
+
 
     // Menyimpan setiap ruangan menggunakan pusat ruangan sebagai key dan posisi lantainya sebagai value.
     public Dictionary<Vector2Int, HashSet<Vector2Int>> RoomsDictionary = new Dictionary<Vector2Int, HashSet<Vector2Int>>();
     [SerializeField]
     private int brushWidth = 2, brushHeight = 2;
     private HashSet<Vector2Int> floorPositions, corridorPositions;
+
+    private void Awake()
+    {
+        RunProceduralGeneration();
+    }
 
     public void RunProceduralGeneration()
     {
@@ -36,14 +46,16 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
     {
         // Membagi area dungeon menjadi ruangan menggunakan Binary Space Partitioning.
         var roomslist = BinarySpacePartitioning(new BoundsInt((Vector3Int)startposition, new Vector3Int(dungeonwidth, dungeonheight, 0)), minroomwidth, minroomheight);
-        HashSet<Vector2Int> floordeco = new HashSet<Vector2Int>();
+        HashSet<Vector2Int> sewerop = new HashSet<Vector2Int>();
+        HashSet<Vector2Int> lights = new HashSet<Vector2Int>();
         HashSet<Vector2Int> floor = new HashSet<Vector2Int>();
         HashSet<Vector2Int> walls = new HashSet<Vector2Int>();
         HashSet<Vector2Int> platforms = new HashSet<Vector2Int>();
         HashSet<Vector2Int> saws = new HashSet<Vector2Int>();
         HashSet<Vector2Int> ladders = new HashSet<Vector2Int>();
-        // Membuat ruangan sederhana dari list yang sudah dibagi.
-        floor = CreateSimpleRooms(roomslist, platforms);
+        HashSet<Vector2Int> ladderpoints = new HashSet<Vector2Int>();
+    // Membuat ruangan sederhana dari list yang sudah dibagi.
+        floor = CreateSimpleRooms(roomslist, platforms, ladderpoints);
 
         // Buat list pusat ruangan.
         List<Vector2Int> roomcenter = new List<Vector2Int>();
@@ -59,49 +71,33 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
             }
         }
 
-        roomcenter.Add(new Vector2Int(-29, 56));
+        roomcenter.Add(new Vector2Int(-29, 57));
         HashSet<Vector2Int> corridors = Connectrooms(roomcenter);
         floor.UnionWith(corridors);
 
         walls = CreateWallsAroundRooms(floor, dungeonwidth, dungeonheight);
         walls.UnionWith(StartRoomGenerator.makeroomstart(floor, platforms));
+        ladders = CreateLadders.CreateLadder(ladderpoints, platforms, RoomsDictionary);
         platforms.UnionWith(MakeRoomOpening.GeneratePlatforms(RoomsDictionary, floor, walls));
-        saws = MakeRoomOpening.GenerateSaws(RoomsDictionary, floor, walls);
-        floordeco = FloorDecorator.DecorateFloor(RoomsDictionary, floor);
+        saws = MakeRoomOpening.GenerateSaws(RoomsDictionary, floor, walls, platforms);
+        sewerop = FloorDecorator.DecorateFloor(RoomsDictionary, floor);
+        lights = FloorDecorator.CreateLights(sewerop);
         visualizer.PaintFloortiles(floor);
         WallGenerator.CreateSaws(saws, visualizer);
         WallGenerator.CreatePlatforms(platforms, visualizer);
         WallGenerator.CreateWalls(walls, visualizer);
-        WallGenerator.CreateFloorDeco(floordeco, visualizer);
+        WallGenerator.CreateFloorDeco(sewerop, visualizer);
+        WallGenerator.CreateLights(lights, visualizer);
         LadderGenerator.CreateLadder(ladders, visualizer);
 
-        // --- Menentukan ruangan spesial dengan Dijkstra ---
-
-        // Bangun graph ruangan dari RoomsDictionary.
-        var roomGraph = BuildRoomGraph();
-
-        // Menggunakan ruangan pertama sebagai ruangan mulai.
-        Vector2Int startRoom = RoomsDictionary.Keys.First();
-
-        // Dapatkan jarak dari ruangan mulai.
-        var distancesFromStart = DijkstraDistances(roomGraph, startRoom);
-
-        // Tentukan ruangan boss (ruangan yang paling jauh dari ruangan mulai).
-        Vector2Int bossRoom = GetFurthestRoom(distancesFromStart);
-        Debug.Log("Boss Room: " + bossRoom);
-
-        // Dapatkan jarak dari ruangan boss.
-        var distancesFromBoss = DijkstraDistances(roomGraph, bossRoom);
-
-        // Tentukan ruangan harta (ruangan yang paling jauh dari ruangan boss).
-        Vector2Int treasureRoom = GetFurthestRoom(distancesFromBoss);
-        Debug.Log("Treasure Room: " + treasureRoom);
+        CreateGroundEnemies.checkeverytile(RoomsDictionary, platforms, walls, Groundenemies);
+        //CreateFlyingEnemies.checkeverytile(RoomsDictionary, platforms, walls, Flyingenemies);
     }
 
     private HashSet<Vector2Int> Connectrooms(List<Vector2Int> roomcenter)
     {
         HashSet<Vector2Int> corridors = new HashSet<Vector2Int>();
-        var currentRoomCenter = roomcenter[Random.Range(0, roomcenter.Count)];
+        var currentRoomCenter = (new Vector2Int(-29, 56));
         roomcenter.Remove(currentRoomCenter);
 
         while (roomcenter.Count > 0)
@@ -187,7 +183,7 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
         return closest;
     }
 
-    private HashSet<Vector2Int> CreateSimpleRooms(List<BoundsInt> roomslist, HashSet<Vector2Int> Platforms)
+    private HashSet<Vector2Int> CreateSimpleRooms(List<BoundsInt> roomslist, HashSet<Vector2Int> Platforms, HashSet<Vector2Int> ladderpoints)
     {
         HashSet<Vector2Int> overallFloor = new HashSet<Vector2Int>();
 
@@ -204,21 +200,21 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
                 }
             }
 
-            PlacePlatforms(room, Platforms);
+            PlacePlatforms(room, Platforms, ladderpoints);
 
             SaveRoomData(new Vector2Int((int)room.center.x, (int)room.center.y), roomFloor);
         }
         return overallFloor;
     }
 
-    private void PlacePlatforms(BoundsInt mainRoom, HashSet<Vector2Int> platform)
+    private void PlacePlatforms(BoundsInt mainRoom, HashSet<Vector2Int> platform, HashSet<Vector2Int> ladderpoints)
     {
         int minPlatformLength = 6;
         int maxPlatformLength = 10;
-        int sameYSpacing = 3; // Jarak minimal antar platform jika X berbeda
-        int minXWallSpacing = 2 + offset;
-        int minYWallSpacing = 2 + offset;
-        int maxPlatforms = Mathf.Max(5, mainRoom.size.y / 6);
+        int sameYSpacing = 4; // Jarak minimal antar platform jika X berbeda
+        int minXWallSpacing = 4 + offset;
+        int minYWallSpacing = 4 + offset;
+        int maxPlatforms = Mathf.Max(5, mainRoom.size.y / 4);
 
         List<RectInt> placedPlatforms = new List<RectInt>();
 
@@ -241,6 +237,8 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
                 {
                     platform.Add(new Vector2Int(startX + x, startY));
                 }
+                int ladderX = Random.Range(startX, startX + platformWidth);
+                ladderpoints.Add(new Vector2Int(ladderX, startY - 1));
             }
         }
     }

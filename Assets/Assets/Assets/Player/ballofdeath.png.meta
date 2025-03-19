@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9872619185b97e04f80c549f373df68d
+guid: 42ecbf2d21611a3469fd9a1f12c40c79
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -47,7 +47,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 16
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -122,8 +122,8 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 144
-        height: 144
+        width: 346.4
+        height: 344
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -131,8 +131,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d57faaeaa76a63442b0fecd867d733e7
-      internalID: -1722036569
+      spriteID: 2ca795f4308408b418bb0572914ac109
+      internalID: 968946477
       vertices: []
       indices: 
       edges: []
@@ -141,10 +141,10 @@ TextureImporter:
       name: ballofdeath_1
       rect:
         serializedVersion: 2
-        x: 144
+        x: 346
         y: 0
-        width: 144
-        height: 144
+        width: 346.4
+        height: 344
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -152,8 +152,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1191cf3cc2eef1f4b8d2988f0ab16b1f
-      internalID: -574407522
+      spriteID: d673bedf3fb11bf4caa052ccc4ed1418
+      internalID: -1891257142
       vertices: []
       indices: 
       edges: []
@@ -162,10 +162,10 @@ TextureImporter:
       name: ballofdeath_2
       rect:
         serializedVersion: 2
-        x: 288
+        x: 692
         y: 0
-        width: 144
-        height: 144
+        width: 346.4
+        height: 344
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -173,8 +173,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5d82052f343667146b89fc6fc4e161a4
-      internalID: -1891954464
+      spriteID: 1e55b0968424b734db07e7e4d937e05b
+      internalID: 752601905
       vertices: []
       indices: 
       edges: []
@@ -183,10 +183,10 @@ TextureImporter:
       name: ballofdeath_3
       rect:
         serializedVersion: 2
-        x: 432
+        x: 1038
         y: 0
-        width: 144
-        height: 144
+        width: 346.4
+        height: 344
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -194,8 +194,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bdec7f63a3fed9b41adf84e38d3c000a
-      internalID: 79098008
+      spriteID: fec9bd9a069097a4ab76156f5e6d733b
+      internalID: -1341822372
       vertices: []
       indices: 
       edges: []
@@ -204,10 +204,10 @@ TextureImporter:
       name: ballofdeath_4
       rect:
         serializedVersion: 2
-        x: 576
+        x: 1384
         y: 0
-        width: 144
-        height: 144
+        width: 346.4
+        height: 344
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -215,8 +215,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b48e6cd2a524bd242b1ecdf5b711b2d5
-      internalID: 184868924
+      spriteID: 5aae7cba787fa954db8438e5b68d53c1
+      internalID: 605134748
       vertices: []
       indices: 
       edges: []
@@ -225,10 +225,10 @@ TextureImporter:
       name: ballofdeath_5
       rect:
         serializedVersion: 2
-        x: 720
+        x: 1730
         y: 0
-        width: 144
-        height: 144
+        width: 346.4
+        height: 344
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -236,8 +236,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: da93ca778d7fd0048887c9ae183714c9
-      internalID: 1620120144
+      spriteID: cd1ea0221d1564645a10de1139380d6a
+      internalID: -1792479393
       vertices: []
       indices: 
       edges: []
@@ -246,10 +246,10 @@ TextureImporter:
       name: ballofdeath_6
       rect:
         serializedVersion: 2
-        x: 864
+        x: 2076
         y: 0
-        width: 144
-        height: 144
+        width: 346.4
+        height: 344
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -257,8 +257,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3c4073214704bf349afe6078a881ff33
-      internalID: -131847988
+      spriteID: 5db2bc112c02652439ae5a72ce165886
+      internalID: -600877832
       vertices: []
       indices: 
       edges: []
@@ -267,10 +267,10 @@ TextureImporter:
       name: ballofdeath_7
       rect:
         serializedVersion: 2
-        x: 1008
+        x: 2422
         y: 0
-        width: 144
-        height: 144
+        width: 346.4
+        height: 344
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -278,8 +278,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e2032c99611f8d44f94da005aed1e140
-      internalID: -623204551
+      spriteID: f722b13886deeca46b7ec6c4eee0751f
+      internalID: 914646971
       vertices: []
       indices: 
       edges: []
@@ -288,10 +288,10 @@ TextureImporter:
       name: ballofdeath_8
       rect:
         serializedVersion: 2
-        x: 1152
+        x: 2768
         y: 0
-        width: 144
-        height: 144
+        width: 346.4
+        height: 344
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -299,8 +299,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0ac60be7e9170b4499a9aaf92c78858e
-      internalID: -1955807887
+      spriteID: 4be734ee1373e6e479d6e9a19c633a1d
+      internalID: 2034629255
       vertices: []
       indices: 
       edges: []
@@ -309,10 +309,10 @@ TextureImporter:
       name: ballofdeath_9
       rect:
         serializedVersion: 2
-        x: 1296
+        x: 3114
         y: 0
-        width: 144
-        height: 144
+        width: 346.4
+        height: 344
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -320,8 +320,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 44d31d0b43a0995438442dff05368d6e
-      internalID: 965317175
+      spriteID: e0b2d36ebb3d90f4dac944dc16cdf775
+      internalID: -1764503595
       vertices: []
       indices: 
       edges: []
@@ -337,16 +337,16 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      ballofdeath_0: -1722036569
-      ballofdeath_1: -574407522
-      ballofdeath_2: -1891954464
-      ballofdeath_3: 79098008
-      ballofdeath_4: 184868924
-      ballofdeath_5: 1620120144
-      ballofdeath_6: -131847988
-      ballofdeath_7: -623204551
-      ballofdeath_8: -1955807887
-      ballofdeath_9: 965317175
+      ballofdeath_0: 968946477
+      ballofdeath_1: -1891257142
+      ballofdeath_2: 752601905
+      ballofdeath_3: -1341822372
+      ballofdeath_4: 605134748
+      ballofdeath_5: -1792479393
+      ballofdeath_6: -600877832
+      ballofdeath_7: 914646971
+      ballofdeath_8: 2034629255
+      ballofdeath_9: -1764503595
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

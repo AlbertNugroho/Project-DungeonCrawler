@@ -39,7 +39,7 @@ public class SpikesDoDamage : MonoBehaviour
         {
             if (playerhealth != null)
             {
-                playerhealth.takedamage(10);
+                playerhealth.TakeDamage(10);
             }
             yield return new WaitForSeconds(damageCooldown);
         }

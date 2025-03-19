@@ -41,7 +41,7 @@ public class PlayerMovement : MonoBehaviour
     public Animator Scythe;
     public Transform ScytheTransform;
     public GameObject ps;
-        
+    public SpriteRenderer sr;
     public AudioManager am;
     public CapsuleCollider2D cc;
 
@@ -52,6 +52,8 @@ public class PlayerMovement : MonoBehaviour
     private IAttackSkill Omnidirectionalslash;
     public Staminawork StaminaBar;
     public PlayerHealth HealthBar;
+
+    public int Damage = 20;
 
     public float leftAttackCooldownTimer = 0f;
     public float rightAttackCooldownTimer = 0f;
@@ -90,6 +92,7 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         a = GetComponent<Animator>();
         cc = GetComponent<CapsuleCollider2D>();
+        sr = GetComponent<SpriteRenderer>();
         BaseScytheScale = ScytheTransform.localScale;
 
         AttackFactory attackFactory = new AttackFactory();
@@ -97,7 +100,23 @@ public class PlayerMovement : MonoBehaviour
         holdAttack = attackFactory.GetHoldAttack();
         rightAttack = attackFactory.GetRightAttack();
         Omnidirectionalslash = attackFactory.GetOmniDirectionalSlash();
+
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemies");
+
+        // Ignore collisions with each enemy
+        foreach (GameObject enemy in enemies)
+        {
+            Collider2D enemyCollider = enemy.GetComponent<Collider2D>();
+            Collider2D myCollider = GetComponent<Collider2D>();
+
+            if (enemyCollider != null && myCollider != null)
+            {
+                Physics2D.IgnoreCollision(myCollider, enemyCollider, true);
+            }
+        }
     }
+
+
 
     void Update()
     {
@@ -123,7 +142,6 @@ public class PlayerMovement : MonoBehaviour
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
         if (!isBusy && !iswalljumping)
             rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
-        
     }
 
     private void walljump()
@@ -143,7 +161,6 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) && walljumpingcounter > 0f)
         {
-            Debug.Log("I am pressed");
             iswalljumping = true;
             rb.velocity = new Vector2(walljumpingdirection * walljumpingpower.x, walljumpingpower.y);
             walljumpingcounter = 0;
@@ -317,6 +334,7 @@ public class PlayerMovement : MonoBehaviour
         isDashing = true;
         isBusy = true;
         a.SetTrigger("Dashing");
+        am.playclip(am.dashfx);
 
         dashTimer = dashTime;
         rb.velocity = direction * dashSpeed;
@@ -340,14 +358,21 @@ public class PlayerMovement : MonoBehaviour
     private IEnumerator DashEffectLoop(Vector2 direction)
     {
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Vector3 lastEffectPosition = transform.position;
+        float effectSpawnDistance = 0.1f; // Spawn every 0.01 units moved
+
         while (isDashing) // Keep spawning effects while dashing
         {
-            GameObject effect = Instantiate(ps, transform.position + new Vector3(0, -0.7f, 0), Quaternion.Euler(angle, 90, 0));
-            Destroy(effect, 0.3f); // Destroy after 0.5s
+            if (Vector3.Distance(transform.position, lastEffectPosition) >= effectSpawnDistance)
+            {
+                GameObject effect = Instantiate(ps, transform.position + new Vector3(0, -0.7f, 0), Quaternion.Euler(angle, 90, 0));
+                Destroy(effect, 0.3f); // Destroy after 0.2s
+            }
 
-            yield return new WaitForSeconds(0.03f); // Spawn every 0.1s
+            yield return null; // Check every frame
         }
     }
+
 
     void StopDash()
     {

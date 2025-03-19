@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -17,13 +18,13 @@ public class MakeRoomOpening
         return platforms;
     }
 
-    public static HashSet<Vector2Int> GenerateSaws(Dictionary<Vector2Int, HashSet<Vector2Int>> RoomsDictionary, HashSet<Vector2Int> wholefloor, HashSet<Vector2Int> walls)
+    public static HashSet<Vector2Int> GenerateSaws(Dictionary<Vector2Int, HashSet<Vector2Int>> RoomsDictionary, HashSet<Vector2Int> wholefloor, HashSet<Vector2Int> walls, HashSet<Vector2Int> platforms)
     {
         HashSet<Vector2Int> saws = new HashSet<Vector2Int>();
         foreach (var kvp in RoomsDictionary)
         {
             HashSet<Vector2Int> roomfloor = kvp.Value;
-            saws.UnionWith(CheckSawsDown(roomfloor, wholefloor, walls));
+            saws.UnionWith(CheckSawsDown(roomfloor, wholefloor, walls, platforms));
         }
         return saws;
     }
@@ -87,7 +88,7 @@ public class MakeRoomOpening
         return temp;
     }
 
-    public static HashSet<Vector2Int> CheckSawsDown(HashSet<Vector2Int> roomfloor, HashSet<Vector2Int> wholefloor, HashSet<Vector2Int> walls)
+    public static HashSet<Vector2Int> CheckSawsDown(HashSet<Vector2Int> roomfloor, HashSet<Vector2Int> wholefloor, HashSet<Vector2Int> walls, HashSet<Vector2Int> platforms)
     {
         HashSet<Vector2Int> saws = new HashSet<Vector2Int>();
         Vector2Int bottomLeft = RoomCorners.GetLeftBottomCoordinate(roomfloor);
@@ -96,9 +97,12 @@ public class MakeRoomOpening
         for (int i = bottomLeft.x; i <= bottomRight.x; i++)
         {
             Vector2Int candidate = new Vector2Int(i, bottomLeft.y - 1);
-            if (wholefloor.Contains(candidate) && !PlatformAvailability(walls, candidate))
+            Vector2Int belowCandidate = new Vector2Int(i, bottomLeft.y - 2);
+            Vector2Int platformPosition = new Vector2Int(i, bottomLeft.y + 1);
+            if (wholefloor.Contains(candidate) && !walls.Contains(candidate) && walls.Contains(belowCandidate))
             {
-                saws.Add(candidate + new Vector2Int(0, 0));
+                saws.Add(candidate);
+                platforms.Add(platformPosition);
             }
         }
         return saws;

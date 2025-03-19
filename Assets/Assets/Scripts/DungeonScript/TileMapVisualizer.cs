@@ -9,7 +9,7 @@ public class TileMapVisualizer : MonoBehaviour
     [SerializeField]
     private Tilemap floorTilemap, walltilemap, laddermap, doortilemap, decorationtilemap, sawmap;
     [SerializeField]
-    private TileBase floortile, floordecotile;
+    private TileBase floortile, floordecotile, floorlights;
     [SerializeField]
     private TileBase walltop;
     [SerializeField]
@@ -64,16 +64,7 @@ public class TileMapVisualizer : MonoBehaviour
     internal void PaintSingleDecoration(Vector2Int decorationpos, int id)
     {
         PaintSingleTile(decorationtilemap, decorationtile[id], decorationpos);
-    }
-
-    public void ApplyDecorations(TileMapVisualizer visualizer, Dictionary<Vector2Int, DecorationType> decorations)
-    {
-        foreach (var decoration in decorations)
-        {
-            int id = (int)decoration.Value; // Convert enum to index
-            visualizer.PaintSingleDecoration(decoration.Key, id);
-        }
-    }
+    }  
 
     internal void PaintSingleBasicSaw(Vector2Int saws)
     {
@@ -83,5 +74,9 @@ public class TileMapVisualizer : MonoBehaviour
     internal void PaintSingleFloorDeco(Vector2Int pos)
     {
         PaintSingleTile(floorTilemap, floordecotile, pos);
+    }
+    internal void PaintSingleFloorlights(Vector2Int pos)
+    {
+        PaintSingleTile(floorTilemap, floorlights, pos);
     }
 }

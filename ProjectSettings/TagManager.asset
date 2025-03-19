@@ -10,6 +10,10 @@ TagManager:
   - Grid
   - Audio
   - OneWayPlatform
+  - Ladders
+  - Enemies
+  - Camera
+  - DashDamage
   layers:
   - Default
   - TransparentFX
@@ -20,7 +24,7 @@ TagManager:
   - Platforms
   - Enemies
   - Player
-  - 
+  - Ladders
   - 
   - 
   - 

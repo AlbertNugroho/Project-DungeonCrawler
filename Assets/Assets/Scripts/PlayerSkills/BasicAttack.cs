@@ -4,8 +4,10 @@ using UnityEngine;
 public class BasicAttack : IAttackSkill
 {
     int staminacost = 20;
+    int Damage = 20;
     public void ExecuteAttack(PlayerMovement player, Vector2 direction)
     {
+        player.Damage = Damage;
         if (CombatManager.instance.canreciveinput)
         {
             if (player.StaminaBar.staminaBar.value < staminacost)

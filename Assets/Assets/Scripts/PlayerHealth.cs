@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,13 +9,26 @@ public class PlayerHealth : MonoBehaviour
 {
     public float maxhealth = 120;
     public Slider Healthbar;
-    public Color flashColor = Color.white;
-    public float flashDuration = 1f;
+    public Color flashColor = Color.red;
+    public float DamageCooldown = 0.3f;
     public SpriteRenderer spriteRenderer;
     private float damageTimer = 0;
+    public GameObject deathScreen;
+    public Animator anim;
+    public AudioManager am;
+    public static CinemachineVirtualCamera cvc;
+    public static float shaketimer;
+    public PlayerMovement player;
 
+    private void Awake()
+    {
+        cvc = GameObject.FindGameObjectWithTag("Camera").GetComponent<CinemachineVirtualCamera>();
+        am = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+    }
     void Start()
     {
+        Time.timeScale = 1;
+
         setMaxHealth(maxhealth);
         Healthbar.value = maxhealth;
     }
@@ -23,10 +37,22 @@ public class PlayerHealth : MonoBehaviour
     {
         if (Healthbar.value <= 0)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            am.playclip(am.deathfx);
+            deathScreen.SetActive(true);
+            Time.timeScale = 0;
         }
         if (damageTimer > 0)
             damageTimer -= Time.deltaTime;
+
+        if(shaketimer > 0)
+        {
+            shaketimer -= Time.deltaTime;   
+        }
+        if(shaketimer <=0)
+        {
+            CinemachineBasicMultiChannelPerlin cinemachineBasicMultiChannelPerlin = cvc.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+            cinemachineBasicMultiChannelPerlin.m_AmplitudeGain = 0;
+        }
     }
 
     public void setMaxHealth(float maxhealth)
@@ -34,32 +60,32 @@ public class PlayerHealth : MonoBehaviour
         Healthbar.maxValue = maxhealth;
     }
 
-    public void takedamage(int damage)
+    public void yes()
     {
-        if (damageTimer <= 0)
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+    public void No(string sceneName)
+    {
+        SceneManager.LoadScene(sceneName);
+    }
+    public void TakeDamage(int damage)
+    {
+        if (damageTimer <= 0 && !player.isBusy)
         {
             Healthbar.value -= damage;
-            damageTimer = flashDuration;
-            Flash(); // Flash happens every time damage is taken
+            damageTimer = DamageCooldown;
+            ShakeCamera(5, 0.2f);
+            am.playclip(am.Damagedfx);
+            anim.SetTrigger("TakeDamage");
         }
     }
 
-    public void Flash()
+    public static void ShakeCamera(float intensity, float time)
     {
-        StartCoroutine(FlashEffect());
+        CinemachineBasicMultiChannelPerlin cinemachineBasicMultiChannelPerlin = cvc.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+
+        cinemachineBasicMultiChannelPerlin.m_AmplitudeGain = intensity;
+        shaketimer = time;
     }
 
-    private IEnumerator FlashEffect()
-    {
-        Color originalColor = spriteRenderer.color;
-
-        for (int i = 0; i < 1; i++)
-        {
-            spriteRenderer.color = flashColor;
-            yield return new WaitForSeconds(flashDuration / 2);
-            spriteRenderer.color = originalColor;
-            yield return new WaitForSeconds(flashDuration / 2);
-        }
-        spriteRenderer.color = originalColor;
-    }
 }

@@ -4,8 +4,11 @@ using UnityEngine;
 public class RightAttack : IAttackSkill
 {
     int staminacost = 30;
+    int Damage = 30;
+    int cooldown = 7;
     public void ExecuteAttack(PlayerMovement player, Vector2 direction)
     {
+        player.Damage = Damage;
         if (player.StaminaBar.staminaBar.value < staminacost)
         {
             return;
@@ -14,13 +17,23 @@ public class RightAttack : IAttackSkill
         {
             player.StaminaBar.useStamina(staminacost);
         }
+        player.StartCoroutine(PlayAnimation(player, direction));
+        player.rightAttackCooldownTimer = cooldown;
+    }
 
-        player.cc.isTrigger = true;
+    IEnumerator PlayAnimation(PlayerMovement player, Vector2 direction)
+    {
+        CompositeCollider2D platformCollider = GameObject.FindGameObjectWithTag("OneWayPlatform").GetComponent<CompositeCollider2D>();
+        Physics2D.IgnoreCollision(player.cc, platformCollider, true);
+        EnableCircleHitbox.EnableDashDamageColider();
         player.StartDash(direction, 40);
         CombatManager.instance.inputrecived = true;
         player.StartCoroutine(Playdashsound(player));
-        player.rightAttackCooldownTimer = player.rightAttackCooldown;
+        yield return new WaitForSeconds(1);
+        EnableCircleHitbox.DisableDashDamageColider();
+        Physics2D.IgnoreCollision(player.cc, platformCollider, false);
     }
+
 
     IEnumerator Playdashsound(PlayerMovement player)
     {

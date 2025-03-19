@@ -24,6 +24,15 @@ public class WallGenerator
         }
     }
 
+    public static void CreateLights(HashSet<Vector2Int> lightpos, TileMapVisualizer tmv)
+    {
+        foreach (var pos in lightpos)
+        {
+
+            tmv.PaintSingleFloorlights(pos);
+        }
+    }
+
     public static void CreatePlatforms(HashSet<Vector2Int> doorpos, TileMapVisualizer tmv)
     {
         foreach (var door in doorpos)

@@ -4,8 +4,11 @@ using UnityEngine;
 public class OmniDirectionalSlash : IAttackSkill
 {
     int staminacost = 70;
+    int Damage = 10;
+    int cooldown = 15;
     public void ExecuteAttack(PlayerMovement player, Vector2 direction)
     {
+        player.Damage = Damage;
         if (player.StaminaBar.staminaBar.value < staminacost)
         {
             return;
@@ -15,19 +18,18 @@ public class OmniDirectionalSlash : IAttackSkill
             player.StaminaBar.useStamina(staminacost);
         }
         player.StartCoroutine(PlayAnimation(player, direction));
-        player.StartCoroutine(PlaySound(player));
-        player.rightAttackCooldownTimer = player.rightAttackCooldown;
+        player.rightAttackCooldownTimer = cooldown;
     }
 
     IEnumerator PlayAnimation(PlayerMovement player, Vector2 direction)
     {
         player.am.playclip(player.am.dashfx);
+        player.isBusy = true;
         player.Scythe.Play("Base Layer.Start", 0, 0f);
         player.StartDash(direction, 30);
         yield return new WaitForSeconds(player.dashTime);
-        player.isBusy = true;
         player.rb.bodyType = RigidbodyType2D.Static;
-        player.Scythe.Play("Base Layer.Scythe_idle", 0, 0f);
+        player.Scythe.Play("Base Layer.Scythe_idle", 0  , 0f);
         player.a.Play("Base Layer.Omnislash", 0, 0f);
         PlaySound(player);
         yield return new WaitForSeconds(0.1f);
@@ -38,7 +40,7 @@ public class OmniDirectionalSlash : IAttackSkill
         PlaySound(player);
         yield return new WaitForSeconds(0.1f);
         PlaySound(player);
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.55f);
         player.rb.bodyType = RigidbodyType2D.Dynamic;
         player.am.playclip(player.am.dashfx);
         player.StartDash(direction, 30);

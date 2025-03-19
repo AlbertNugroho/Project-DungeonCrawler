@@ -10,6 +10,10 @@ public class AudioManager : MonoBehaviour
     public AudioClip jumpfx;
     public AudioClip walkingfx;
     public AudioClip dashfx;
+    public AudioClip Damagedfx;
+    public AudioClip EnemyTakeDamagefx;
+    public AudioClip deathfx;
+    public AudioClip enemyatkfx;
 
     private void Start()
     {

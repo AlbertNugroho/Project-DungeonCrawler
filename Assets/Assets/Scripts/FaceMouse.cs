@@ -17,7 +17,8 @@ public class FaceMouse : MonoBehaviour
     void Update()
     {
         transform.position = playerGameObj.transform.position - new Vector3(0, 0.27f, 0);
-        sr.flipX = player.attackDirection.x < 0;
+
+        faceMouse();
     }
 
     private void faceMouse()
