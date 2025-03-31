@@ -1,5 +1,6 @@
 using Cinemachine;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
@@ -26,12 +27,22 @@ public class EnemyAI : MonoBehaviour
     private float chaseTimer = 0f;
     private const float chaseDuration = 5f;
     public PlayerHealth playerHealth;
+    public TextMeshProUGUI txt;
+    public TextMeshProUGUI score;
+    public GameObject key;
+    public GameObject healthup;
+    public int enemycount;
     private void Awake()
     {
+        score = GameObject.FindGameObjectWithTag("scoretxt").GetComponent<TextMeshProUGUI>();
+        txt = GameObject.FindGameObjectWithTag("keytxt").GetComponent<TextMeshProUGUI>();
         am = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
     }
     void Start()
     {
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemies");
+        enemycount = enemies.Length;
+        Debug.Log(enemycount);
         cc = GetComponent<CapsuleCollider2D>();
         rb = GetComponent<Rigidbody2D>();
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
@@ -47,8 +58,8 @@ public class EnemyAI : MonoBehaviour
         isGrounded = Physics2D.Raycast(transform.position, Vector2.down, 0.5f, groundLayer);
         float direction = Mathf.Sign(player.position.x - transform.position.x);
         bool isPlayerNear = Physics2D.OverlapCircle(transform.position + Vector3.up * 2, 10f, playerLayer);
-        bool isPlayerAbove = player.position.y > transform.position.y + 1f;
-        bool isPlayerBelow = player.position.y < transform.position.y - 1f;
+        bool isPlayerAbove = player.position.y > transform.position.y + 2f;
+        bool isPlayerBelow = player.position.y < transform.position.y - 2f;
         float flipDirection = transform.localScale.x;
 
         // Adjusted collider position to flip correctly
@@ -59,7 +70,7 @@ public class EnemyAI : MonoBehaviour
 
         RaycastHit2D platformAbove = Physics2D.Raycast(transform.position, Vector2.up, 15f, groundLayer);
 
-        if (isPlayerInRange)
+        if (isPlayerInRange && isGrounded)
         {
             Attack();
             return;
@@ -165,15 +176,32 @@ public class EnemyAI : MonoBehaviour
         }
         else
         {
-            // Stop any other animation and force "Die"
+            if (txt == null)
+            {
+                Debug.LogError("TextMeshProUGUI component is not found.");
+                return;
+            }
+            if (key == null)
+            {
+                Debug.LogError("Item prefab is not assigned.");
+                return;
+            }
+
             anim.ResetTrigger("TakeDamage");
             anim.ResetTrigger("Attack");
+            int before = lockmanager.count;
+            lockmanager.Chancetodropkeys(txt, score, key, healthup, transform.position + new Vector3(3, 3, 0), transform.position + new Vector3(0, 1, 0), enemycount);
             am.playclip(am.deathfx);
-            anim.Play("Die", 0, 0f); // Play the "Die" animation from the start
-            rb.velocity = Vector2.zero; // Stop movement
-            rb.isKinematic = true; // Prevent further physics interactions
-            GetComponent<Collider2D>().enabled = false; // Disable collisions
+            if(lockmanager.count > before)
+            {
+                am.playclip(am.keyfx);
+            }
+            anim.Play("Die", 0, 0f);
+            rb.velocity = Vector2.zero;
+            rb.isKinematic = true;
+            GetComponent<Collider2D>().enabled = false;
             StartCoroutine(WaitForDeathAnimation());
+
         }
     }
 

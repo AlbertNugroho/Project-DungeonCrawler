@@ -14,6 +14,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip EnemyTakeDamagefx;
     public AudioClip deathfx;
     public AudioClip enemyatkfx;
+    public AudioClip keyfx;
 
     private void Start()
     {
@@ -26,5 +27,8 @@ public class AudioManager : MonoBehaviour
         Sfx.PlayOneShot(audio); 
     }
 
-    
+    public void stopMusic()
+    {
+        Music.Stop();
+    }
 }

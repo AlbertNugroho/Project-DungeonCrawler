@@ -21,6 +21,8 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
     private List<GameObject> Groundenemies = new List<GameObject>();
     [SerializeField]
     private List<GameObject> Flyingenemies = new List<GameObject>();
+    [SerializeField]
+    private GameObject doorprefab;
 
 
     // Menyimpan setiap ruangan menggunakan pusat ruangan sebagai key dan posisi lantainya sebagai value.
@@ -41,6 +43,7 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
 
     private void CreateRooms()
     {
+
         // Membagi area dungeon menjadi ruangan menggunakan Binary Space Partitioning.
         var roomslist = BinarySpacePartitioning(new BoundsInt((Vector3Int)startposition, new Vector3Int(dungeonwidth, dungeonheight, 0)), minroomwidth, minroomheight);
         HashSet<Vector2Int> sewerop = new HashSet<Vector2Int>();
@@ -74,6 +77,7 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
 
         walls = CreateWallsAroundRooms(floor, dungeonwidth, dungeonheight);
         walls.UnionWith(StartRoomGenerator.makeroomstart(floor, platforms));
+        walls.UnionWith(StartRoomGenerator.makeroomend(floor, platforms));
         ladders = CreateLadders.CreateLadder(ladderpoints, platforms, RoomsDictionary);
         platforms.UnionWith(MakeRoomOpening.GeneratePlatforms(RoomsDictionary, floor, walls));
         saws = MakeRoomOpening.GenerateSaws(RoomsDictionary, floor, walls, platforms);
@@ -87,6 +91,8 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
         WallGenerator.CreateLights(lights, visualizer);
         LadderGenerator.CreateLadder(ladders, visualizer);
 
+        MakeDungeonLockedDoor.makelastdoor(doorprefab, floor);
+
         CreateGroundEnemies.checkeverytile(RoomsDictionary, platforms, walls, Groundenemies);
         //CreateFlyingEnemies.checkeverytile(RoomsDictionary, platforms, walls, Flyingenemies);
     }
@@ -96,7 +102,7 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
         HashSet<Vector2Int> corridors = new HashSet<Vector2Int>();
         var currentRoomCenter = (new Vector2Int(-29, 56));
         roomcenter.Remove(currentRoomCenter);
-
+        Vector2Int lastroomcenter = currentRoomCenter;
         while (roomcenter.Count > 0)
         {
             Vector2Int closest = FindClosestPointTo(currentRoomCenter, roomcenter);
@@ -104,8 +110,22 @@ public class RoomFirstDungeonGenerator : MonoBehaviour
             HashSet<Vector2Int> newCorridor = CreateCorridor(currentRoomCenter, closest);
             currentRoomCenter = closest;
             corridors.UnionWith(newCorridor);
+            lastroomcenter = closest;
         }
         corridorPositions = new HashSet<Vector2Int>(corridors);
+        corridors.UnionWith(Connectlastrooms(new Vector2Int(170, 60), lastroomcenter));
+        return corridors;
+    }
+
+    private HashSet<Vector2Int> Connectlastrooms(Vector2Int lastroom, Vector2Int currentroomcenter)
+    {
+        HashSet<Vector2Int> corridors = new HashSet<Vector2Int>();
+
+        HashSet<Vector2Int> newCorridor = CreateCorridor(currentroomcenter, lastroom);
+        corridors.UnionWith(newCorridor);
+
+        corridorPositions.UnionWith(corridors); // Gabungkan dengan koridor global
+
         return corridors;
     }
 

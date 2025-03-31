@@ -284,11 +284,13 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Alpha1) && !isBusy && !isDashing && rightAttackCooldownTimer <= 0)
         {
+            ResetScytheScale();
             Omnidirectionalslash.ExecuteAttack(this, attackDirection);
             CombatManager.instance.InputManager();
         }
         if (Input.GetKeyDown(KeyCode.Alpha2) && !isBusy && !isDashing && rightAttackCooldownTimer <= 0)
         {
+            ResetScytheScale();
             rightAttack.ExecuteAttack(this, attackDirection);
             CombatManager.instance.InputManager();
         }
@@ -335,7 +337,8 @@ public class PlayerMovement : MonoBehaviour
         isBusy = true;
         a.SetTrigger("Dashing");
         am.playclip(am.dashfx);
-
+        CompositeCollider2D platformCollider = GameObject.FindGameObjectWithTag("OneWayPlatform").GetComponent<CompositeCollider2D>();
+        Physics2D.IgnoreCollision(cc, platformCollider, true);
         dashTimer = dashTime;
         rb.velocity = direction * dashSpeed;
 
@@ -380,7 +383,8 @@ public class PlayerMovement : MonoBehaviour
         isBusy = false;
         cc.isTrigger = false;
         rb.velocity = Vector2.zero;
-        ResetScytheScale();
+        CompositeCollider2D platformCollider = GameObject.FindGameObjectWithTag("OneWayPlatform").GetComponent<CompositeCollider2D>();
+        Physics2D.IgnoreCollision(cc, platformCollider, false);
     }
 
     public void ResetScytheScale()

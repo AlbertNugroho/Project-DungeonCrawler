@@ -29,7 +29,7 @@ public class RightAttack : IAttackSkill
         player.StartDash(direction, 40);
         CombatManager.instance.inputrecived = true;
         player.StartCoroutine(Playdashsound(player));
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.5f);
         EnableCircleHitbox.DisableDashDamageColider();
         Physics2D.IgnoreCollision(player.cc, platformCollider, false);
     }
