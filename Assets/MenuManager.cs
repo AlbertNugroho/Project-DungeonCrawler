@@ -5,12 +5,17 @@ using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
+    [SerializeField] private Texture2D cursorTexture;
+    private Vector2 hotspot;
+
     public GameObject menu;
     bool menuactive = false;
     // Start is called before the first frame update
     void Start()
     {
         menu.SetActive(false);
+        hotspot = new Vector2(cursorTexture.width / 2, cursorTexture.height / 2);
+        Cursor.SetCursor(cursorTexture, hotspot, CursorMode.Auto);
     }
 
     // Update is called once per frame
