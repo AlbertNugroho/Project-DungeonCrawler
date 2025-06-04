@@ -53,7 +53,8 @@ the many stuff in the game like attacking, using skill, procedural dungeon gener
       ├── Sounds                      # Contains every sound used for the game like music and sound effects.
       ├── Scripts                     # Contains all scripts needed to make the gane get goings like PlayerMovement scripts.
       ├── Sprites                     # Contains every sprites used in the game.
-      ├── Prefab                      # Contains every Prefab, reusable game object that you can instantiate (create copies of) in your game scene.├── Scenes                      # Contains all scenes that exist in the game for it to interconnected with each other like MainMenu and Game.
+      ├── Prefab                      # Contains every Prefab, reusable game object that you can instantiate (create copies of) in your game scene.
+      ├── Scenes                      # Contains all scenes that exist in the game for it to interconnected with each other like MainMenu and Game.
    ├── Packages                       # Contains game packages that responsible for managing external libraries and packages used in your project.
       ├── Manifest.json               # Contains the lists of all the packages that your project depends on and their versions.
       ├── Packages-lock.json          # Contains packages that ensuring your project always uses the same versions of all dependencies and their sub-dependencies.
