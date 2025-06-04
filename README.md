@@ -51,7 +51,7 @@ the many stuff in the game like attacking, using skill, procedural dungeon gener
       ├── Animation                   # Contains every animation clip and animator controller that played when the game start.
       ├── Material                    # Contains all the material for the game.
       ├── Sounds                      # Contains every sound used for the game like music and sound effects.
-      ├── Scripts                     # Contains all scripts needed to make the gane get goings like PlayerMovement scripts.
+      ├── Scripts                     # Contains all scripts needed to make the gane work like PlayerMovement scripts.
       ├── Sprites                     # Contains every sprites used in the game.
       ├── Prefab                      # Contains every Prefab, reusable game object that you can instantiate (create copies of) in your game scene.
       ├── Scenes                      # Contains all scenes that exist in the game for it to interconnected with each other like MainMenu and Game.
